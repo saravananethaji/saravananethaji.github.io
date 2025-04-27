@@ -1,0 +1,58 @@
+<script type="module">
+    import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
+  
+    async function main() {
+      const client = await Client.connect("saravanakumar2025/playground");
+      //const result = await client.predict("/lambda", {});
+      //console.log(result.data);
+    }
+  
+   
+
+    async function loaded(reader) {
+
+        const response_0 = await fetch("https://raw.githubusercontent.com/gradio-app/gradio/main/test/test_files/bus.png");
+        const exampleImage = await response_0.blob();
+                                
+        const client = await Client.connect("saravanakumar2025/playground");
+        const result = await client.predict("/predict", { 
+                        image: exampleImage, 
+        });
+        console.log(result.data);
+        let json = await result;
+        
+      const label1 = json['data'][0]['confidences'][0]['label'];
+      const confidence1 = json['data'][0]['confidences'][0]['confidence'];
+      const label2= json['data'][0]['confidences'][1]['label'];
+      const confidence2 = json['data'][0]['confidences'][1]['confidence'];
+      let label = 'not found';
+      
+      console.log ('first element in output is'+label1 + ' confidence is '+confidence1);
+      console.log ('second element in output is'+label2 + ' confidence is '+confidence2);
+
+      if(parseFloat(confidence1)>parseFloat(confidence2)){
+        
+        label = label1;
+        console.log ('first element in output is'+label1 + ' confidence is '+confidence1);
+
+      }else{
+        label = label2;
+        console.log ('second element in output is'+label2 + ' confidence is '+confidence2);
+      }
+
+      results.innerHTML = `<br/><img src="${reader.result}" width="300"> <p>${label}</p>`
+
+  }
+    function read() {
+        const reader = new FileReader();
+        reader.addEventListener('load', () => loaded(reader))
+        reader.readAsDataURL(photo.files[0]);
+    
+    }
+    main();
+    photo.addEventListener('input', read);
+  </script>
+
+</script>
+<input id="photo" type="file">
+<div id="results"></div>
